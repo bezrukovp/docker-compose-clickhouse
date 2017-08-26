@@ -1,0 +1,58 @@
+version: "2"
+
+services:
+  client:
+    image: yandex/clickhouse-client
+    restart: unless-stopped
+    command: ['--host', 'r1ch1']
+    tty: true
+    stdin_open: true
+    labels:
+      io.rancher.container.pull_image: always
+    depends_on:
+      - r1ch1
+      - r1ch2
+  r1ch1:
+    image: yandex/clickhouse-server
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    labels:
+      service: clickhouse
+      io.rancher.container.pull_image: always
+    depends_on:
+      - r1ch2
+    volumes:
+      - r1ch1_etc:/etc/clickhouse-server
+      - r1ch1_lib:/var/lib/clickhouse
+
+  r1ch2:
+    image: yandex/clickhouse-server
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    labels:
+      service: clickhouse
+      io.rancher.container.pull_image: always
+    volumes:
+      - r1ch2_etc:/etc/clickhouse-server
+      - r1ch2_lib:/var/lib/clickhouse
+
+
+volumes:
+  r1ch1_etc:
+    driver: "local"
+  r1ch1_lib:
+    driver: "local"
+  r1ch2_etc:
+    driver: "local"
+  r1ch2_lib:
+    driver: "local"
